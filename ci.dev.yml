@@ -1,0 +1,51 @@
+schemaVersion: v0.2
+prepare:
+  steps:
+    - name: install nix dependencies
+      command: nix-env -iA nixpkgs.rustup nixpkgs.protobuf
+    - name: configure Rust
+      command: rustup default stable
+    - name: build rust agent
+      command: cd apps/agent && cargo build
+    - name: build rust server
+      command: cd apps/server && cargo build
+    - name: install node dependencies
+      command: sudo n 22.15.0 &&cd apps/frontend && yarn install
+test:
+  steps: []
+run:
+  frontend:
+    steps:
+      - name: Deploy
+        command: sudo n 22.15.0 && cd apps/frontend && yarn dev
+    plan: 8
+    replicas: 1
+    network:
+      ports:
+        - port: 3000
+          isPublic: true
+      paths:
+        - port: 3000
+          path: /
+  server:
+    steps:
+      - name: Deploy
+        command: rustup default stable && cd apps/server && cargo run
+    plan: 8
+    replicas: 1
+    network:
+      ports:
+        - port: 3000
+          isPublic: false
+      paths: []
+  agent:
+    steps:
+      - name: Deploy agent
+        command: rustup default stable && cd apps/agent && cargo run
+    plan: 8
+    replicas: 1
+    network:
+      ports:
+        - port: 3000
+          isPublic: false
+      paths: []
