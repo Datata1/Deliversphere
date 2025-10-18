@@ -10,14 +10,16 @@ prepare:
     - name: build rust server
       command: cd apps/server && cargo build
     - name: install node dependencies
-      command: sudo n 22.15.0 &&cd apps/frontend && yarn install
+      command: '[ "$(node -v)" = "v22.15.0" ] || sudo n 22.15.0; cd apps/frontend &&
+        yarn install'
 test:
   steps: []
 run:
   frontend:
     steps:
       - name: Deploy
-        command: sudo n 22.15.0 && cd apps/frontend && yarn dev
+        command: '[ "$(node -v)" = "v22.15.0" ] || sudo n 22.15.0 && cd apps/frontend &&
+          yarn dev'
     plan: 8
     replicas: 1
     network:
@@ -30,18 +32,30 @@ run:
   server:
     steps:
       - name: Deploy
-        command: rustup default stable && cd apps/server && cargo run
+        command: >-
+          (while true; do { echo -e 'HTTP/1.1 200 OK\r\n\r\n'; } | nc -lnv
+          0.0.0.0 3000; done) & \
+
+          rustup default stable && cd apps/server && cargo run
     plan: 8
     replicas: 1
     network:
       ports:
         - port: 3000
+          isPublic: true
+        - port: 3001
           isPublic: false
-      paths: []
+      paths:
+        - port: 3000
+          path: /test
   agent:
     steps:
       - name: Deploy agent
-        command: rustup default stable && cd apps/agent && cargo run
+        command: >-
+          (while true; do { echo -e 'HTTP/1.1 200 OK\r\n\r\n'; } | nc -lnv
+          0.0.0.0 3000; done) & \
+
+          rustup default stable && cd apps/agent && cargo run
     plan: 8
     replicas: 1
     network:

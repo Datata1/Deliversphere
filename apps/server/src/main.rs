@@ -77,7 +77,7 @@ impl RunnerService for MyRunnerService {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let addr = "[::1]:50051".parse()?;
+    let addr = "[::]:3001".parse()?;
     let runner_service = MyRunnerService::default();
     println!("gRPC Server lauscht auf {}", addr);
     Server::builder()

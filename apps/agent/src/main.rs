@@ -10,7 +10,7 @@ use runner::{
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut client = RunnerServiceClient::connect("http://[::1]:50051").await?;
+    let mut client = RunnerServiceClient::connect("http://ws-server-71635-server.workspaces:3001").await?;
     println!("Verbunden mit gRPC Server...");
 
     let (tx, rx) = mpsc::channel(128);
