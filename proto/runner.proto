@@ -14,7 +14,12 @@ message AgentRequest {
     RegisterAgent register = 1;
     LogMessage log = 2;
     JobResult result = 3;
+		Heartbeat heartbeat = 4; 
   }
+}
+
+message Heartbeat {
+  uint64 timestamp = 1;
 }
 
 // Nachrichten, die vom Server zum Agenten gesendet werden

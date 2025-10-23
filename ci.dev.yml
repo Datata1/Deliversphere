@@ -12,14 +12,16 @@ prepare:
     - name: install node dependencies
       command: '[ "$(node -v)" = "v22.15.0" ] || sudo n 22.15.0; cd apps/frontend &&
         yarn install'
+    - name: install sqlx-cli
+      command: cargo install sqlx-cli
 test:
   steps: []
 run:
   frontend:
     steps:
       - name: Deploy
-        command: '[ "$(node -v)" = "v22.15.0" ] || sudo n 22.15.0 && cd apps/frontend &&
-          yarn dev'
+        command: '[ "$(node -v)" = "v22.15.0" ] || sudo n 22.15.0 && cd
+          packages/frontend && yarn dev'
     plan: 8
     replicas: 1
     network:
@@ -32,11 +34,7 @@ run:
   server:
     steps:
       - name: Deploy
-        command: >-
-          (while true; do { echo -e 'HTTP/1.1 200 OK\r\n\r\n'; } | nc -lnv
-          0.0.0.0 3000; done) & \
-
-          rustup default stable && cd apps/server && cargo run
+        command: cd packages/server && cargo run
     plan: 8
     replicas: 1
     network:
@@ -47,19 +45,19 @@ run:
           isPublic: false
       paths:
         - port: 3000
-          path: /test
+          path: /server
+          stripPath: true
   agent:
     steps:
       - name: Deploy agent
-        command: >-
-          (while true; do { echo -e 'HTTP/1.1 200 OK\r\n\r\n'; } | nc -lnv
-          0.0.0.0 3000; done) & \
-
-          rustup default stable && cd apps/agent && cargo run
+        command: cd packages/agent && cargo run
     plan: 8
-    replicas: 1
+    replicas: 3
     network:
       ports:
         - port: 3000
           isPublic: false
-      paths: []
+      paths:
+        - port: 3000
+          path: /agent
+          stripPath: true
