@@ -1,0 +1,15 @@
+[workspace]
+members = [
+    "packages/server",
+    "packages/agent",
+]
+resolver = "2" 
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "LICENSE.md" 
+
+# [workspace.dependencies]
+# tokio = { version = "1", features = ["full"] }
+# thiserror = "1"

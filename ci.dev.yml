@@ -5,13 +5,11 @@ prepare:
       command: nix-env -iA nixpkgs.rustup nixpkgs.protobuf
     - name: configure Rust
       command: rustup default stable
-    - name: build rust agent
-      command: cd apps/agent && cargo build
-    - name: build rust server
-      command: cd apps/server && cargo build
+    - name: build rust services
+      command: cargo build
     - name: install node dependencies
-      command: '[ "$(node -v)" = "v22.15.0" ] || sudo n 22.15.0; cd apps/frontend &&
-        yarn install'
+      command: '[ "$(node -v)" = "v22.15.0" ] || sudo n 22.15.0; cd packages/frontend
+        && yarn install'
     - name: install sqlx-cli
       command: cargo install sqlx-cli
 test:
@@ -34,7 +32,7 @@ run:
   server:
     steps:
       - name: Deploy
-        command: cd packages/server && cargo run
+        command: cargo run --bin server
     plan: 8
     replicas: 1
     network:
@@ -50,7 +48,7 @@ run:
   agent:
     steps:
       - name: Deploy agent
-        command: cd packages/agent && cargo run
+        command: cargo run --bin agent
     plan: 8
     replicas: 3
     network:
